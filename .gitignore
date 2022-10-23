@@ -24,5 +24,4 @@ dist-ssr
 *.sw?
 **/target
 **/Cargo.lock
-src/wasm
 
