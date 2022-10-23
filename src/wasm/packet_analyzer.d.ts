@@ -1,6 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
-* @param {string} name
+* @param {Uint8Array} replay
+* @returns {string}
 */
-export function greet(name: string): void;
+export function parse_packets(replay: Uint8Array): string;

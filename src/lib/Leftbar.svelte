@@ -1,5 +1,7 @@
 <script lang="ts">
     import PacketOverview from "./PacketOverview/PacketOverview.svelte";
+    import * as replayParser from '../wasm/packet_analyzer'
+
     let files;
 
 	$: if (files) {
@@ -11,9 +13,12 @@
             file.arrayBuffer().then(item => {
                 const array = new Uint8Array(item);
                 console.log(array)
+                var startTime = performance.now()
+                const result = replayParser.parse_packets(array)
+                var endTime = performance.now()
+                console.log(`Call to parsePackets took ${endTime - startTime} milliseconds`)
+                console.log(JSON.parse(result))
             })
-            const file_array = Uint8Array.from(file.stream())
-            console.log(file_array)
 			console.log(`${file.name}: ${file.size} bytes`);
 		}
 	}
