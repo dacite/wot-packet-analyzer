@@ -5,8 +5,6 @@
     let files;
 
     $: if (files) {
-        console.log(files);
-
         for (const file of files) {
             file.arrayBuffer().then((item) => {
                 const array = new Uint8Array(item);
@@ -22,7 +20,6 @@
 
                 replay.set(replayData);
             });
-            console.log(`${file.name}: ${file.size} bytes`);
         }
     }
 </script>

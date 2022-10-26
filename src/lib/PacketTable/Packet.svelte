@@ -2,7 +2,6 @@
   import type { Packet as PacketType } from "src/def";
   import { toHex } from "../../utils";
   import Cell from "./Cell.svelte";
-  console.log("HI")
   export let packet: PacketType;
   const packetType = toHex(packet.packet_type);
   const length = `${packet.data.length} bytes`;

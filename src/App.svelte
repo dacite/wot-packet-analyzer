@@ -5,7 +5,6 @@
     import './app.css'
     import PacketTable from './lib/PacketTable/PacketTable.svelte';
     import { replay } from './store';
-  console.log(wasm)
 </script>
 
 <main class="flex w-full h-screen">
