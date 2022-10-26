@@ -8,5 +8,6 @@ export default defineConfig({
     svelte(),
     wasm(),
     topLevelAwait()
-  ]
+  ],
+  base: ''
 })
