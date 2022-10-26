@@ -2,6 +2,6 @@
 
 **WORK IN PROGRESS**
 
-Current Site: https://master--lambent-douhua-57804a.netlify.app/ 
+Current Site: https://dacite.github.io/wot-packet-analyzer
 
 Usage: Simply open a `.wotreplay` file
