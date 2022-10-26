@@ -1,16 +1,13 @@
 import { createColumnHelper } from "@tanstack/svelte-table";
-
-export interface PacketOverview {
-    packetType: number
-    count: number
-}
+import type { PacketOverview } from "src/def";
+import { toHex } from "../../utils";
 
 const columnHelper = createColumnHelper<PacketOverview>()
 
 export const packetOverviewColumns = [
-    columnHelper.accessor('packetType', {
+    columnHelper.accessor('packet_type', {
         header: "Type",
-        cell: info => info.getValue()
+        cell: info => `0x${toHex(info.getValue())}`
     }),
     columnHelper.accessor('count', {
         header: "Count",
@@ -18,13 +15,13 @@ export const packetOverviewColumns = [
     })
 ]
 
-export const packetOverviewData = [
+export const packetOverviewData: PacketOverview[] = [
     {
-        packetType: 1,
+        packet_type: 1,
         count: 43543,
     },
     {
-        packetType: 2,
+        packet_type: 2,
         count: 43543,
     }
 ]

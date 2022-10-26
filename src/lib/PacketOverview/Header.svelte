@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { createSvelteTable, flexRender, getCoreRowModel } from "@tanstack/svelte-table";
+    import { flexRender } from "@tanstack/svelte-table";
     export let table;
 </script>
 
