@@ -3,14 +3,20 @@
 
     export let data;
     export let offset;
+    export let cellType: string;
 
-    function cellBackground(offset: number) {
+    function cellBackground(offset: number, cellType: string) {
         if (offset < 4) return "bg-slate-500 text-gray-200"
         if (offset < 8) return "bg-slate-600 text-gray-200"
         if (offset < 12) return "bg-slate-500 text-gray-200"
+
+        if (cellType === "NORMAL") return ""
+        if (cellType === "PICKLE") return "bg-slate-300 text-gray-800"
+        if (cellType === "ZLIB") return "bg-green-300 text-gray-800"
+
     }
 
-    const color = cellBackground(offset)
+    const color = cellBackground(offset, cellType)
 </script>
 
 <span

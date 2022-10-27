@@ -5,6 +5,25 @@
   export let packet: PacketType;
   const packetType = toHex(packet.packet_type);
   const length = `${packet.data.length} bytes`;
+
+  function indexInPickle(index, packet: PacketType) {
+    for (let range of packet.packet_segments.pickles) {
+      if (range[0] <= index && range[1] >= index) return true
+    }
+    return false
+  }
+  function indexInZlib(index, packet) {
+    for (let range of packet.packet_segments.zlibs) {
+      if (range  == index) return true
+    }
+    return false
+  }
+  function cellType(index, packet) {
+    if(indexInPickle(index, packet)) return "PICKLE"
+    if(indexInZlib(index, packet)) return "ZLIB"
+
+    return "NORMAL"
+  }
 </script>
 
 <div class="w-full h-full">
@@ -16,7 +35,7 @@
     </div>
     <div class="py-2 flex w-full flex-wrap">
       {#each packet.data as byte, idx}
-        <Cell data={byte} offset={idx} />
+        <Cell data={byte} offset={idx} cellType={cellType(idx, packet)}/>
       {/each}
     </div>
   </div>

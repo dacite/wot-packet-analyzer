@@ -51,6 +51,7 @@ pub struct Packet {
     packet_type: u32,
     time: f32,
     adjusted_time: String,
+    packet_segments: PacketSegments
 }
 
 #[derive(Serialize, Clone, Debug)]
@@ -112,6 +113,7 @@ pub fn from_replay_parser(replay_parser: ReplayParser) -> PacketAnalysisResult {
                 packet.get_time() as f64,
                 15,
             ),
+            packet_segments: segment_packet(packet.get_inner())
         };
 
         packets.push(packet);
@@ -133,4 +135,53 @@ pub fn from_replay_parser(replay_parser: ReplayParser) -> PacketAnalysisResult {
         time,
         packets,
     }
+}
+
+#[derive(Copy, Clone)]
+pub enum State {
+    Normal,
+    Pickle(i32),
+}
+
+
+fn is_pickle_start(input: &[u8]) -> bool {
+    input.len() > 1 && input[0] == 0x80 && input[1] == 0x02
+}
+
+fn is_zlib_start(input: &[u8]) -> bool {
+    input.len() > 1 && input[0] == 0x78 && input[1] == 0x9C
+}
+
+#[derive(Serialize, Clone, Debug)]
+pub struct PacketSegments {
+    pub pickles: Vec<(i32, i32)>,
+    pub zlibs: Vec<i32>
+}
+
+fn segment_packet(packet: &[u8]) -> PacketSegments {
+    let mut pickles = Vec::new();
+    let mut zlibs = Vec::new();
+
+    let mut state = State::Normal;
+    for (i, byte) in packet.iter().enumerate() {
+        match (state, byte) {
+            (State::Normal, 0x80) => {
+                if is_pickle_start(&packet[i..]) {
+                    state = State::Pickle(i as i32);
+                }
+            },
+            (State::Pickle(begin), 0x2E) => {
+                pickles.push((begin, i as i32));
+                state = State::Normal 
+            },
+            (_, 0x78) => {
+                if is_zlib_start(&packet[i..]) {
+                    zlibs.push(i as i32)
+                }
+            },
+            (_, _) => {}
+        }
+    }
+
+    PacketSegments { pickles, zlibs }
 }

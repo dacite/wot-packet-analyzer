@@ -19,6 +19,7 @@
                 );
 
                 replay.set(replayData);
+                console.log(replayData)
             });
         }
     }
