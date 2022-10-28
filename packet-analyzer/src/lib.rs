@@ -1,8 +1,9 @@
 use std::collections::HashMap;
 
+use serde::Serialize;
+use standard_format::WotValue;
 use wasm_bindgen::prelude::*;
 use wot_replay_parser::ReplayParser;
-use serde::Serialize;
 
 extern crate console_error_panic_hook;
 #[wasm_bindgen]
@@ -30,16 +31,34 @@ macro_rules! console_log {
 }
 
 #[wasm_bindgen]
-pub fn parse_packets(replay: &[u8]) -> Result<String, String> {
+pub fn parse_packets(replay: &[u8]) -> Result<JsValue, JsValue> {
     console_error_panic_hook::set_once();
     console_log!("Replay length: {}", replay.len());
     let replay = wot_replay_parser::ReplayParser::parse(replay.to_vec()).unwrap();
 
     let result = from_replay_parser(replay);
-    Ok(serde_json::to_string(&result).unwrap())
+
+    Ok(serde_wasm_bindgen::to_value(&result)?)
+    // Ok(serde_json::to_string(&result).unwrap())
+}
+
+#[wasm_bindgen]
+pub fn parse_pickle_stream(stream: &[u8]) -> Result<String, String> {
+    console_error_panic_hook::set_once();
+    console_log!("Stream length: {:02X?}", stream);
+    let pickle_value = serde_pickle::value_from_slice(
+        stream,
+        serde_pickle::DeOptions::new().replace_unresolved_globals(),
+    )
+    .map_err(|e| e.to_string())?;
+
+    let wot_value: WotValue = serde_pickle::from_value(pickle_value).map_err(|e| e.to_string())?;
+
+    serde_json::to_string_pretty(&wot_value).map_err(|e| e.to_string())
 }
 
 #[derive(Serialize, Clone, Debug)]
+#[wasm_bindgen]
 pub struct PacketSummary {
     packet_type: u32,
     count: i32,
@@ -51,17 +70,17 @@ pub struct Packet {
     packet_type: u32,
     time: f32,
     adjusted_time: String,
-    packet_segments: PacketSegments
+    packet_segments: PacketSegments,
 }
 
 #[derive(Serialize, Clone, Debug)]
 pub struct PacketAnalysisResult {
-    packet_summary: Vec<PacketSummary>,
-    tank: String,
-    map: String,
-    version: String,
-    time: String,
-    packets: Vec<Packet>,
+    pub packet_summary: Vec<PacketSummary>,
+    pub tank: String,
+    pub map: String,
+    pub version: String,
+    pub time: String,
+    pub packets: Vec<Packet>,
 }
 
 pub fn from_replay_parser(replay_parser: ReplayParser) -> PacketAnalysisResult {
@@ -113,7 +132,7 @@ pub fn from_replay_parser(replay_parser: ReplayParser) -> PacketAnalysisResult {
                 packet.get_time() as f64,
                 15,
             ),
-            packet_segments: segment_packet(packet.get_inner())
+            packet_segments: segment_packet(packet.get_inner()),
         };
 
         packets.push(packet);
@@ -143,7 +162,6 @@ pub enum State {
     Pickle(i32),
 }
 
-
 fn is_pickle_start(input: &[u8]) -> bool {
     input.len() > 1 && input[0] == 0x80 && input[1] == 0x02
 }
@@ -155,7 +173,7 @@ fn is_zlib_start(input: &[u8]) -> bool {
 #[derive(Serialize, Clone, Debug)]
 pub struct PacketSegments {
     pub pickles: Vec<(i32, i32)>,
-    pub zlibs: Vec<i32>
+    pub zlibs: Vec<i32>,
 }
 
 fn segment_packet(packet: &[u8]) -> PacketSegments {
@@ -165,20 +183,14 @@ fn segment_packet(packet: &[u8]) -> PacketSegments {
     let mut state = State::Normal;
     for (i, byte) in packet.iter().enumerate() {
         match (state, byte) {
-            (State::Normal, 0x80) => {
-                if is_pickle_start(&packet[i..]) {
-                    state = State::Pickle(i as i32);
-                }
-            },
+            (State::Normal, 0x80) if is_pickle_start(&packet[i..]) => {
+                state = State::Pickle(i as i32)
+            }
             (State::Pickle(begin), 0x2E) => {
                 pickles.push((begin, i as i32));
-                state = State::Normal 
-            },
-            (_, 0x78) => {
-                if is_zlib_start(&packet[i..]) {
-                    zlibs.push(i as i32)
-                }
-            },
+                state = State::Normal
+            }
+            (_, 0x78) if is_zlib_start(&packet[i..]) => zlibs.push(i as i32),
             (_, _) => {}
         }
     }

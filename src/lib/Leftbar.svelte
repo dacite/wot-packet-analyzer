@@ -2,6 +2,7 @@
     import PacketOverview from "./PacketOverview/PacketOverview.svelte";
     import * as replayParser from "../wasm/packet_analyzer";
     import { replay } from "../store";
+    import Packet from "./PacketTable/Packet.svelte";
     let files;
 
     $: if (files) {
@@ -10,7 +11,7 @@
                 const array = new Uint8Array(item);
                 let startTime = performance.now();
                 const result = replayParser.parse_packets(array);
-                const replayData = JSON.parse(result);
+                console.log(result)
                 let endTime = performance.now();
                 console.log(
                     `Call to parsePackets took ${
@@ -18,8 +19,7 @@
                     } milliseconds`
                 );
 
-                replay.set(replayData);
-                console.log(replayData)
+                replay.set(result);
             });
         }
     }

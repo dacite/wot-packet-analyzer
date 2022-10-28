@@ -3,6 +3,10 @@ export interface PacketOverview {
     count: number
 }
 
+export interface PacketSegments {
+    pickles: number[][]
+    zlibs: number[]
+}
 export interface ReplayData {
     map: string
     packet_summary: PacketOverview[]
@@ -17,4 +21,10 @@ export interface Packet {
     packet_type: number
     time: number
     adjusted_time: string
+    packet_segments: PacketSegments
+}
+
+export interface PacketSelection {
+    packet: Packet
+    cell_offset: number
 }

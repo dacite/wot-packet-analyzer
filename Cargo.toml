@@ -3,3 +3,6 @@
 members = [
     "packet-analyzer"
 ]
+
+[profile.release]
+lto = true

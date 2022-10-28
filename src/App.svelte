@@ -13,7 +13,7 @@
     <div class="divider"></div>
     {#if $replay != null}
     <div class="px-8 w-full h-full flex items-center justify-center">
-      <PacketTable packets={$replay.packets}/>
+      <PacketTable packets={$replay.packets.filter(packet => packet.packet_type != 10 && packet.packet_type != 7)}/>
     </div>
     <Rightbar packets={$replay.packets}/>
     {:else}
