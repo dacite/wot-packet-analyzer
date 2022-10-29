@@ -10,6 +10,18 @@ export function toHex(number: number, withTag?: boolean) {
     }
 }
 
+export function u8(packet: Packet, offset: number) {
+   const slice = packet.data.slice(offset, offset + 1)
+
+   if (slice.length == 1) {
+      const view = new DataView(new Uint8Array(slice).buffer)
+      
+      return view.getUint8(0)
+   } else {
+      return null
+   }
+}
+
 export function i16(packet: Packet, offset: number) {
    const slice = packet.data.slice(offset, offset + 2)
 

@@ -43,6 +43,12 @@ pub fn parse_packets(replay: &[u8]) -> Result<JsValue, JsValue> {
 }
 
 #[wasm_bindgen]
+pub fn decompress_and_parse_pickle_stream(stream: &[u8]) -> Result<String, String> {
+    let decompressed = miniz_oxide::inflate::decompress_to_vec_zlib(stream).map_err(|e| e.to_string())?;
+    parse_pickle_stream(&decompressed)
+}
+
+#[wasm_bindgen]
 pub fn parse_pickle_stream(stream: &[u8]) -> Result<String, String> {
     console_error_panic_hook::set_once();
     console_log!("Stream length: {:02X?}", stream);
@@ -66,6 +72,7 @@ pub struct PacketSummary {
 
 #[derive(Serialize, Clone, Debug)]
 pub struct Packet {
+    index: usize,
     data: Vec<u8>,
     packet_type: u32,
     time: f32,
@@ -115,7 +122,7 @@ pub fn from_replay_parser(replay_parser: ReplayParser) -> PacketAnalysisResult {
     let mut packets = Vec::new();
 
     let start_time = replay_parser.get_battle_start_time();
-    for packet in replay_parser.packet_stream().unwrap() {
+    for (index, packet) in replay_parser.packet_stream().unwrap().enumerate() {
         let packet = packet.unwrap();
 
         // Keep track of how many packets of a type occurs
@@ -124,6 +131,7 @@ pub fn from_replay_parser(replay_parser: ReplayParser) -> PacketAnalysisResult {
 
         // let packet: Vec<String> = packet.get_inner().iter().map(|&byte| hex::encode_upper(&[byte])).collect();
         let packet = Packet {
+            index,
             data: packet.get_inner().to_vec(),
             packet_type: packet.get_type(),
             time: packet.get_time(),

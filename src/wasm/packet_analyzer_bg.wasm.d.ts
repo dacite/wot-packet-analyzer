@@ -2,6 +2,7 @@
 /* eslint-disable */
 export const memory: WebAssembly.Memory;
 export function parse_packets(a: number, b: number, c: number): void;
+export function decompress_and_parse_pickle_stream(a: number, b: number, c: number): void;
 export function parse_pickle_stream(a: number, b: number, c: number): void;
 export function __wbg_packetsummary_free(a: number): void;
 export function __wbindgen_free(a: number, b: number): void;

@@ -17,6 +17,7 @@ export interface ReplayData {
 }
 
 export interface Packet {
+    index: number
     data: number[]
     packet_type: number
     time: number
@@ -27,4 +28,15 @@ export interface Packet {
 export interface PacketSelection {
     packet: Packet
     cell_offset: number
+}
+
+export interface SelectionRange {
+    start: PacketSelection
+    end: PacketSelection
+    anchor: PacketSelection
+}
+
+
+export interface CellSelection {
+    
 }

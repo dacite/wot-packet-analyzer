@@ -146,6 +146,33 @@ export function parse_packets(replay) {
 * @param {Uint8Array} stream
 * @returns {string}
 */
+export function decompress_and_parse_pickle_stream(stream) {
+    try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        const ptr0 = passArray8ToWasm0(stream, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        wasm.decompress_and_parse_pickle_stream(retptr, ptr0, len0);
+        var r0 = getInt32Memory0()[retptr / 4 + 0];
+        var r1 = getInt32Memory0()[retptr / 4 + 1];
+        var r2 = getInt32Memory0()[retptr / 4 + 2];
+        var r3 = getInt32Memory0()[retptr / 4 + 3];
+        var ptr1 = r0;
+        var len1 = r1;
+        if (r3) {
+            ptr1 = 0; len1 = 0;
+            throw takeObject(r2);
+        }
+        return getStringFromWasm0(ptr1, len1);
+    } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+        wasm.__wbindgen_free(ptr1, len1);
+    }
+}
+
+/**
+* @param {Uint8Array} stream
+* @returns {string}
+*/
 export function parse_pickle_stream(stream) {
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);

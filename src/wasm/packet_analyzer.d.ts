@@ -9,6 +9,11 @@ export function parse_packets(replay: Uint8Array): any;
 * @param {Uint8Array} stream
 * @returns {string}
 */
+export function decompress_and_parse_pickle_stream(stream: Uint8Array): string;
+/**
+* @param {Uint8Array} stream
+* @returns {string}
+*/
 export function parse_pickle_stream(stream: Uint8Array): string;
 /**
 */

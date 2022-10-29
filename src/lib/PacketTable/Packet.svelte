@@ -4,7 +4,13 @@
   import Cell from "./Cell.svelte";
   export let packet: PacketType;
   import * as replayParser from "../../wasm/packet_analyzer";
-  import { selection } from "../../store";
+  import {
+    selection,
+    selectionStatus,
+    selectionRange,
+    unpickleOnClick,
+    unPickleResult,
+  } from "../../store";
   const packetType = toHex(packet.packet_type);
   const length = `${packet.data.length} bytes`;
 
@@ -27,13 +33,53 @@
     return "NORMAL";
   }
   function handleCellClick(event) {
-    selection.set({ packet, cell_offset: event.detail.offset });
-    const range = indexInPickle(event.detail.offset, packet);
-    if (range != null) {
-      const pickleStream = packet.data.slice(range[0], range[1] + 1);
-      const array = new Uint8Array(pickleStream);
-      const result = replayParser.parse_pickle_stream(array);
-      console.log(result);
+    if (
+      $selection != null &&
+      $selection.packet.index == packet.index &&
+      $selection.cell_offset == event.detail.offset
+    ) {
+      selection.set(null);
+    } else {
+      const newSelect = { packet, cell_offset: event.detail.offset };
+      selectionStatus.set(false);
+      selection.set(newSelect);
+    }
+
+    if ($unpickleOnClick) {
+      const range = indexInPickle(event.detail.offset, packet);
+      if (range != null) {
+        const pickleStream = packet.data.slice(range[0], range[1] + 1);
+        const array = new Uint8Array(pickleStream);
+        try {
+          const result = replayParser.parse_pickle_stream(array);
+          $unPickleResult = result;
+        } catch (err) {
+          $unPickleResult = err;
+        }
+      }
+    }
+  }
+  function handleCellMouseMove(event) {
+    const selection = {
+      packet,
+      cell_offset: event.detail.offset,
+    };
+    if ($selectionRange == null) {
+      $selectionRange = {
+        anchor: selection,
+        start: selection,
+        end: selection,
+      };
+    } else if ($selectionRange.anchor.packet.index != selection.packet.index) {
+      $selectionRange = null;
+    } else {
+      if ($selectionRange.anchor.cell_offset > selection.cell_offset) {
+        $selectionRange.end = $selectionRange.anchor;
+        $selectionRange.start = selection;
+      } else {
+        $selectionRange.start = $selectionRange.anchor;
+        $selectionRange.end = selection;
+      }
     }
   }
 </script>
@@ -48,10 +94,16 @@
     <div class="py-2 flex w-full flex-wrap">
       {#each packet.data as byte, idx}
         <Cell
+          isSelected={$selection != null
+            ? $selection.packet.index == packet.index &&
+              $selection.cell_offset == idx
+            : false}
+          packetIndex={packet.index}
           data={byte}
           offset={idx}
           cellType={cellType(idx, packet)}
           on:cellClick={handleCellClick}
+          on:cellMouseMove={handleCellMouseMove}
         />
       {/each}
     </div>
