@@ -2,13 +2,8 @@
     import { f32, f64, i16, i32, i64, u16, u32, u64, u8 } from "../utils";
     import { goToIndex, selectionRange } from "./../store";
     import * as replayParser from "../wasm/packet_analyzer";
-    import {
-        selection,
-        selectionStatus,
-        unPickleResult,
-        unpickleOnClick,
-    } from "./../store";
-    import type {  Packet } from "../def";
+    import { selection, unPickleResult, unpickleOnClick } from "./../store";
+    import type { Packet } from "../def";
     export let packets;
     let value;
 
@@ -29,6 +24,18 @@
             return item;
         }
     }
+
+    const CONVERSIONS = [
+        { text: "U08", func: u8 },
+        { text: "U16", func: u16 },
+        { text: "I16", func: i16 },
+        { text: "U32", func: u32 },
+        { text: "I32", func: i32 },
+        { text: "F32", func: f32 },
+        { text: "U64", func: u64 },
+        { text: "I64", func: i64 },
+        { text: "F64", func: f64 },
+    ];
 </script>
 
 <div class="basis-1/4 px-3 py-5">
@@ -56,51 +63,13 @@
     </div>
     <div class="my-5 heading">Data View</div>
     {#if $selection != null}
-        <div class="font-mono">
-            <span class="font-bold">U08: </span>{display(
-                u8($selection.packet, $selection.cell_offset)
-            )}
-        </div>
-        <div class="font-mono">
-            <span class="font-bold">I16: </span>{display(
-                i16($selection.packet, $selection.cell_offset)
-            )}
-        </div>
-        <div class="font-mono">
-            <span class="font-bold">U16: </span>{display(
-                u16($selection.packet, $selection.cell_offset)
-            )}
-        </div>
-        <div class="font-mono">
-            <span class="font-bold">I32: </span>{display(
-                i32($selection.packet, $selection.cell_offset)
-            )}
-        </div>
-        <div class="font-mono">
-            <span class="font-bold">F32: </span>{display(
-                f32($selection.packet, $selection.cell_offset)
-            )}
-        </div>
-        <div class="font-mono">
-            <span class="font-bold">U32: </span>{display(
-                u32($selection.packet, $selection.cell_offset)
-            )}
-        </div>
-        <div class="font-mono">
-            <span class="font-bold">I64: </span>{display(
-                i64($selection.packet, $selection.cell_offset)
-            )}
-        </div>
-        <div class="font-mono">
-            <span class="font-bold">F64: </span>{display(
-                f64($selection.packet, $selection.cell_offset)
-            )}
-        </div>
-        <div class="font-mono">
-            <span class="font-bold">U64: </span>{display(
-                u64($selection.packet, $selection.cell_offset)
-            )}
-        </div>
+        {#each CONVERSIONS as { text, func }}
+            <div class="font-mono">
+                <span class="font-bold">{`${text}: `}</span>{display(
+                    func($selection.packet, $selection.cell_offset)
+                )}
+            </div>
+        {/each}
     {/if}
     <div class="my-5 heading">Selection Details</div>
     {#if $selectionRange}
