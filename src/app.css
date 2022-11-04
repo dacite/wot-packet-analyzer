@@ -4,7 +4,7 @@
 
 @layer components {
   .heading {
-    @apply bg-gray-400 rounded py-4 px-4 font-bold text-xl text-gray-900;
+    @apply bg-gray-400 rounded py-2 px-4 font-bold text-xl text-gray-900;
   }
 }
 

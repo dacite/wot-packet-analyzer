@@ -10,9 +10,10 @@
     selectionRange,
     unpickleOnClick,
     unPickleResult,
+    goToIndex
   } from "../../store";
-  const packetType = toHex(packet.packet_type);
-  const length = `${packet.data.length} bytes`;
+  let packetType = toHex(packet.packet_type);
+  let length = `${packet.data.length} bytes`;
 
   function indexInPickle(index, packet: PacketType) {
     for (let range of packet.packet_segments.pickles) {
@@ -82,14 +83,16 @@
       }
     }
   }
+
 </script>
 
 <div class="w-full h-full">
   <div class="w-full h-full  overflow-auto relative">
-    <div class="px-4 py-1 sticky top-0 left-0 bg-gray-500 rounded">
+    <div class="px-4 py-1 sticky top-0 left-0 rounded flex justify-between bg-gray-500" class:selectedPacket={$goToIndex == packet.index}>
       <h1 class="text-xl text-black font-bold font-mono">
         {`${packet.adjusted_time} | 0x${packetType} | ${"_Dacite"} | ${length}`}
       </h1>
+      <p class="text-black">{packet.index}</p>
     </div>
     <div class="py-2 flex w-full flex-wrap">
       {#each packet.data as byte, idx}
@@ -109,3 +112,9 @@
     </div>
   </div>
 </div>
+
+<style lang="postcss">
+  .selectedPacket {
+    background-color: aliceblue;
+  }
+</style>

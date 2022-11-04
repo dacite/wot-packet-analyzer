@@ -12,7 +12,7 @@ export const packetOverviewTable = writable<TableOptions<PacketOverview>>({
 
 export const replay = writable<ReplayData | null>(null);
 
-export const goToIndex = writable<number | undefined>(undefined)
+export const goToIndex = writable<number | null>(null)
 
 export const selectedPickle = writable<number[] | null>(null)
 

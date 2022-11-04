@@ -10,6 +10,12 @@ export function toHex(number: number, withTag?: boolean) {
     }
 }
 
+export function fromHex(hex: string) {
+   const hexStripped = hex.replace("0x", "")
+
+   return parseInt(hexStripped, 16)
+}
+
 export function u8(packet: Packet, offset: number) {
    const slice = packet.data.slice(offset, offset + 1)
 

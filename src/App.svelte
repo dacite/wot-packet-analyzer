@@ -1,6 +1,6 @@
 <script lang="ts">
     import Leftbar from './lib/Leftbar.svelte';
-    import Rightbar from './lib/Rightbar.svelte';
+    import Rightbar from './lib/Rightbar/Rightbar.svelte';
     import * as wasm from './wasm/packet_analyzer.js'
     import './app.css'
     import PacketTable from './lib/PacketTable/PacketTable.svelte';

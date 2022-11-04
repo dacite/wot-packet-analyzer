@@ -23,9 +23,10 @@
   width={`${LIST_WIDTH}px`}
   itemCount={packets.length}
   itemSize={(index) => calcItemSize(LIST_WIDTH, packets[index].data.length)}
+  estimatedItemSize={200 * packets.length}
   scrollToIndex={$goToIndex}
   scrollToAlignment="start"
-  scrollToBehaviour="smooth"
+  scrollToBehaviour="instant"
 >
   <div slot="item" let:index let:style {style}>
     <Packet packet={packets[index]} />
