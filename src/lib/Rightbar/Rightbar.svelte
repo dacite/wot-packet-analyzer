@@ -18,7 +18,7 @@
     export let packets;
     let replayTimeValue;
     let findPacketValue;
-
+    let goToIndexValue;
     function resolveTimeToPacket(packets: Packet[], time: string) {
         for (let i = 0; i < packets.length; i++) {
             if (packets[i].adjusted_time === time) {
@@ -29,6 +29,15 @@
         return null;
     }
 
+    function findPacket(index: number) {
+        for (let i = 0; i < packets.length; i++) {
+            if (packets[i].index == index) {
+                return i;
+            }
+        }
+        return null;
+    }
+    
     function findPacketForward(currentIndex: number, packetType: string) {
         let packetTypeDecimal = fromHex(packetType);
 
@@ -43,7 +52,7 @@
 
     function findPacketBackward(currentIndex: number, packetType: string) {
         if (currentIndex == null) {
-            currentIndex = packets.length
+            currentIndex = packets.length;
         }
         let packetTypeDecimal = fromHex(packetType);
 
@@ -128,7 +137,21 @@
                         }}>Before</button
                     >
                 </div>
-                <div class="flex w-full">
+                <span class="label-text font-mono">Go to Packet:</span>
+                <div class="flex w-full gap-2">
+                    <input
+                        bind:value={goToIndexValue}
+                        type="text"
+                        class="input input-bordered w-full max-w-xs"
+                    />
+                    <button
+                        class="btn"
+                        on:click|preventDefault={() => {
+                            goToIndex.set(findPacket(goToIndexValue));
+                        }}>Go</button
+                    >
+                </div>
+                <div class="flex w-full gap-3">
                     <button
                         class="btn"
                         on:click|preventDefault={() => {
@@ -137,7 +160,7 @@
                     ><button
                         class="btn"
                         on:click|preventDefault={() => {
-                            console.log("GOING TO", packets.length - 1)
+                            console.log("GOING TO", packets.length - 1);
                             goToIndex.set(packets.length - 1);
                         }}>Go To End</button
                     >
