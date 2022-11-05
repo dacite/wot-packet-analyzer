@@ -1,4 +1,5 @@
 import type { Packet } from "./def";
+import { replay } from "./store"
 
 export function toHex(number: number, withTag?: boolean) {
     if (number == null) return "XX";
@@ -12,7 +13,7 @@ export function toHex(number: number, withTag?: boolean) {
 
 export function fromHex(hex: string) {
    const hexStripped = hex.replace("0x", "")
-
+   console.log(parseInt(hexStripped, 16))
    return parseInt(hexStripped, 16)
 }
 
@@ -124,3 +125,4 @@ export function f64(packet: Packet, offset: number) {
       return null
    }
 }
+

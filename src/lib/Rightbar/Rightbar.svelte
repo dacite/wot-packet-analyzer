@@ -13,12 +13,13 @@
     } from "../../utils";
     import { goToIndex, selectionRange } from "../../store";
     import * as replayParser from "../../wasm/packet_analyzer";
-    import { selection, unPickleResult, unpickleOnClick } from "../../store";
+    import { selection, unPickleResult, unpickleOnClick, replay } from "../../store";
     import type { Packet } from "../../def";
     export let packets;
     let replayTimeValue;
     let findPacketValue;
     let goToIndexValue;
+    console.log($replay.players)
     function resolveTimeToPacket(packets: Packet[], time: string) {
         for (let i = 0; i < packets.length; i++) {
             if (packets[i].adjusted_time === time) {
@@ -73,6 +74,19 @@
         }
     }
 
+    function player(packet: Packet, offset: number) {
+        const number = i32(packet, offset)
+
+        const playerInfo = $replay.players.get(number)
+
+        if (playerInfo == null) {
+            return ""
+        } else {
+            return playerInfo
+        }
+        
+    }
+
     const CONVERSIONS = [
         { text: "U08", func: u8 },
         { text: "U16", func: u16 },
@@ -83,6 +97,7 @@
         { text: "U64", func: u64 },
         { text: "I64", func: i64 },
         { text: "F64", func: f64 },
+        { text: "Player", func: player}
     ];
 </script>
 
@@ -168,16 +183,7 @@
             </label>
         </form>
     </div>
-    <div class="my-5 heading">Data View</div>
-    {#if $selection != null}
-        {#each CONVERSIONS as { text, func }}
-            <div class="font-mono">
-                <span class="font-bold">{`${text}: `}</span>{display(
-                    func($selection.packet, $selection.cell_offset)
-                )}
-            </div>
-        {/each}
-    {/if}
+    
     <div class="my-5 heading">Selection Details</div>
     {#if $selectionRange}
         <div>

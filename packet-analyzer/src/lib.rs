@@ -88,6 +88,7 @@ pub struct PacketAnalysisResult {
     pub version: String,
     pub time: String,
     pub packets: Vec<Packet>,
+    pub players: HashMap<i32, String>
 }
 
 pub fn from_replay_parser(replay_parser: ReplayParser) -> PacketAnalysisResult {
@@ -158,9 +159,10 @@ pub fn from_replay_parser(replay_parser: ReplayParser) -> PacketAnalysisResult {
         packet_summary,
         tank,
         map,
-        version,
+        version: format!("{:?}", replay_parser.get_version().unwrap_or([0,0,0,0])),
         time,
         packets,
+        players: get_player_list(json)
     }
 }
 
@@ -204,4 +206,17 @@ fn segment_packet(packet: &[u8]) -> PacketSegments {
     }
 
     PacketSegments { pickles, zlibs }
+}
+
+fn get_player_list(json: &serde_json::Value) -> HashMap<i32, String> {
+    let mut player_list = HashMap::new();
+    let vehicles = json["vehicles"].as_object().unwrap();
+    for i in vehicles.into_iter() {
+        let avatar_id = i.0.parse::<i32>().unwrap();
+        let name = i.1["name"].as_str().unwrap();
+        let tank = i.1["vehicleType"].as_str().unwrap();
+
+        player_list.insert(avatar_id, format!("{}, {}", name, tank));
+    }
+    player_list
 }

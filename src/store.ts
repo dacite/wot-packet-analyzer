@@ -25,3 +25,5 @@ export const selectionRange = writable<SelectionRange | null>(null)
 export const unpickleOnClick = writable<boolean>(true)
 
 export const unPickleResult = writable<string>("")
+
+export const replayFile = writable<string>("")

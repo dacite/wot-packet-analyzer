@@ -14,6 +14,7 @@ export interface ReplayData {
     tank: string
     time: string
     version: string
+    players: Map<number, string>
 }
 
 export interface Packet {

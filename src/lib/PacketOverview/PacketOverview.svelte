@@ -1,9 +1,11 @@
 <script lang="ts">
   import { createSvelteTable, flexRender } from "@tanstack/svelte-table";
-  import { packetOverviewTable as packetOverviewTableOptions } from "../../store";
+  import { packetOverviewTable as packetOverviewTableOptions, replay } from "../../store";
   import Header from "./Header.svelte";
-  export let packetSummary;
-  $packetOverviewTableOptions.data = packetSummary;
+  replay.subscribe(value => {
+    $packetOverviewTableOptions.data = value.packet_summary;
+  })
+  
   const table = createSvelteTable(packetOverviewTableOptions);
 </script>
 

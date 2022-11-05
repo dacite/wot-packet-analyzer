@@ -1,7 +1,8 @@
 <script lang="ts">
     import PacketOverview from "./PacketOverview/PacketOverview.svelte";
     import * as replayParser from "../wasm/packet_analyzer";
-    import { replay } from "../store";
+    import { replay, replayFile } from "../store";
+    import Dataview from "./Rightbar/Dataview.svelte";
     let files;
 
     $: if (files) {
@@ -10,14 +11,18 @@
                 const array = new Uint8Array(item);
                 let startTime = performance.now();
                 const result = replayParser.parse_packets(array);
+                console.log(file.name)
                 let endTime = performance.now();
                 console.log(
                     `Call to parsePackets took ${
                         endTime - startTime
                     } milliseconds`
                 );
-
-                replay.set(result);
+                replayFile.set(file.name)
+                replay.update(value => {
+                    value = result
+                    return value
+                })
             });
         }
     }
@@ -43,9 +48,10 @@
             <div class="flex"><span class="font-bold min-w-[70px] block">Time: </span>{$replay.time}</div>
         {/if}
     </div>
+    <Dataview />
     <div class="mt-8 heading">Packet Overview</div>
     {#if $replay != null}
-        <PacketOverview packetSummary={$replay.packet_summary}/>
+        <PacketOverview replay={$replay}/>
     {/if}
 </div>
 
