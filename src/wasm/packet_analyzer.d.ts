@@ -6,6 +6,12 @@
 */
 export function parse_packets(replay: Uint8Array): any;
 /**
+* @param {Uint8Array} needle
+* @param {number} from
+* @returns {any}
+*/
+export function search_value(needle: Uint8Array, from: number): any;
+/**
 * @param {Uint8Array} stream
 * @returns {string}
 */
@@ -15,6 +21,17 @@ export function decompress_and_parse_pickle_stream(stream: Uint8Array): string;
 * @returns {string}
 */
 export function parse_pickle_stream(stream: Uint8Array): string;
+/**
+*/
+export class PacketSearchResult {
+  free(): void;
+/**
+*/
+  offset: number;
+/**
+*/
+  packet_id: number;
+}
 /**
 */
 export class PacketSummary {

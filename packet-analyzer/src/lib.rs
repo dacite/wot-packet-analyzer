@@ -1,11 +1,15 @@
-use std::collections::HashMap;
-
+use std::{collections::HashMap, sync::Mutex};
+use aho_corasick::AhoCorasick;
+use once_cell::sync::Lazy;
 use serde::Serialize;
 use standard_format::WotValue;
 use wasm_bindgen::prelude::*;
 use wot_replay_parser::ReplayParser;
 
 extern crate console_error_panic_hook;
+
+static ANALYSIS_RESULT: Lazy<Mutex<Option<PacketAnalysisResult>>> = Lazy::new(|| Mutex::new(None));
+
 #[wasm_bindgen]
 extern "C" {
     // Use `js_namespace` here to bind `console.log(..)` instead of just
@@ -38,8 +42,34 @@ pub fn parse_packets(replay: &[u8]) -> Result<JsValue, JsValue> {
 
     let result = from_replay_parser(replay);
 
+    let mut value = ANALYSIS_RESULT.lock().unwrap();
+    *value = Some(result.clone());
+
     Ok(serde_wasm_bindgen::to_value(&result)?)
     // Ok(serde_json::to_string(&result).unwrap())
+}
+
+#[wasm_bindgen]
+#[derive(Serialize, Clone, Debug)]
+pub struct PacketSearchResult {
+    pub packet_id: i32,
+    pub offset: i32
+}
+
+#[wasm_bindgen]
+pub fn search_value(needle: &[u8], from: i32) -> Result<JsValue, JsValue> {
+    let analysis_result = ANALYSIS_RESULT.lock().unwrap();
+    let ac = AhoCorasick::new([needle]);
+
+    for packet in analysis_result.as_ref().unwrap().packets.iter().skip(from as usize + 1) {
+        if let Some(mat) = ac.find(&packet.data) {
+            return Ok(serde_wasm_bindgen::to_value(&PacketSearchResult {
+                packet_id: packet.index as i32,
+                offset: mat.start() as i32
+            })?)
+        }
+    }
+    Ok(JsValue::null())
 }
 
 #[wasm_bindgen]
