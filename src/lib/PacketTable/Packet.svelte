@@ -90,7 +90,7 @@
   <div class="w-full h-full  overflow-auto relative">
     <div class="px-4 py-1 sticky top-0 left-0 rounded flex justify-between bg-gray-500" class:selectedPacket={$goToIndex == packet.index}>
       <h1 class="text-xl text-black font-bold font-mono">
-        {`${packet.adjusted_time} | 0x${packetType} | ${"_Dacite"} | ${length}`}
+        {`${packet.adjusted_time} | 0x${packetType} | ${length}`}
       </h1>
       <p class="text-black">{packet.index}</p>
     </div>

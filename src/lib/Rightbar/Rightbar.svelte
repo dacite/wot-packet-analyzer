@@ -13,13 +13,18 @@
     } from "../../utils";
     import { goToIndex, selectionRange } from "../../store";
     import * as replayParser from "../../wasm/packet_analyzer";
-    import { selection, unPickleResult, unpickleOnClick, replay } from "../../store";
+    import {
+        selection,
+        unPickleResult,
+        unpickleOnClick,
+        replay,
+    } from "../../store";
     import type { Packet } from "../../def";
     export let packets;
     let replayTimeValue;
     let findPacketValue;
     let goToIndexValue;
-    console.log($replay.players)
+    console.log($replay.players);
     function resolveTimeToPacket(packets: Packet[], time: string) {
         for (let i = 0; i < packets.length; i++) {
             if (packets[i].adjusted_time === time) {
@@ -38,7 +43,7 @@
         }
         return null;
     }
-    
+
     function findPacketForward(currentIndex: number, packetType: string) {
         let packetTypeDecimal = fromHex(packetType);
 
@@ -75,16 +80,15 @@
     }
 
     function player(packet: Packet, offset: number) {
-        const number = i32(packet, offset)
+        const number = i32(packet, offset);
 
-        const playerInfo = $replay.players.get(number)
+        const playerInfo = $replay.players.get(number);
 
         if (playerInfo == null) {
-            return ""
+            return "";
         } else {
-            return playerInfo
+            return playerInfo;
         }
-        
     }
 
     const CONVERSIONS = [
@@ -97,7 +101,7 @@
         { text: "U64", func: u64 },
         { text: "I64", func: i64 },
         { text: "F64", func: f64 },
-        { text: "Player", func: player}
+        { text: "Player", func: player },
     ];
 </script>
 
@@ -183,7 +187,7 @@
             </label>
         </form>
     </div>
-    
+
     <div class="my-5 heading">Selection Details</div>
     {#if $selectionRange}
         <div>
@@ -240,6 +244,64 @@
                     $unPickleResult = err;
                 }
             }}>Decompress & Unpickle</button
+        >
+        <button
+            class="btn"
+            class:btn-disabled={$selectionRange == null}
+            on:click={() => {
+                const packet = $selectionRange.start.packet;
+                const selection = packet.data.slice(
+                    $selectionRange.start.cell_offset,
+                    $selectionRange.end.cell_offset + 1
+                );
+                const array = new Uint8Array(selection);
+
+                try {
+                    const result = replayParser.search_value(
+                        array,
+                        packet.index
+                    );
+                    if (result) {
+                        const startSelection = {
+                            packet: packets[result.packet_id],
+                            cell_offset: result.offset,
+                        };
+                        const endSelection = {
+                            packet: packets[result.packet_id],
+                            cell_offset: result.offset + array.length - 1,
+                        };
+
+                        $selectionRange = {
+                            start: startSelection,
+                            end: endSelection,
+                            anchor: startSelection,
+                        };
+                        goToIndex.set(result.packet_id);
+                        $unPickleResult = "";
+                    } else {
+                        $unPickleResult = "No more matches";
+                    }
+                } catch (err) {
+                    console.log(err);
+                }
+            }}>Find Next</button
+        >
+        <button
+            class="btn"
+            class:btn-disabled={$selectionRange == null}
+            on:click={() => {
+                const packet = $selectionRange.start.packet;
+                const selection = packet.data.slice(
+                    $selectionRange.start.cell_offset,
+                    $selectionRange.end.cell_offset + 1
+                );
+
+                try {
+                    $unPickleResult = String.fromCharCode(...selection);
+                } catch (err) {
+                    console.log(err);
+                }
+            }}>To ASCII</button
         >
     </div>
     <textarea

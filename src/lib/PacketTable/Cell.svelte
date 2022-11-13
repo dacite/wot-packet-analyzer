@@ -78,6 +78,6 @@
         box-shadow: inset 0px 0px 0px 2px rgb(144, 160, 175);
     }
     .selectionRange {
-        @apply bg-slate-600 text-gray-700;
+        @apply bg-blue-600 text-gray-300;
     }
 </style>

@@ -33,6 +33,7 @@
         { text: "U64", func: u64 },
         { text: "I64", func: i64 },
         { text: "F64", func: f64 },
+        { text: "Offset", func: (packet: Packet, offset: number) => offset },
         { text: "Player", func: player },
     ];
 </script>
