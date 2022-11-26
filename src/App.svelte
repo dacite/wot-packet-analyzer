@@ -18,8 +18,7 @@
       {/key}
     </div>
     <Rightbar packets={$replay.packets}/>
-    {:else}
-    <div>Load Replays</div>
+
     {/if}
   </div>
 </main>

@@ -12,6 +12,10 @@ export function parse_packets(replay: Uint8Array): any;
 */
 export function search_value(needle: Uint8Array, from: number): any;
 /**
+* @returns {string}
+*/
+export function get_json(): string;
+/**
 * @param {Uint8Array} stream
 * @returns {string}
 */

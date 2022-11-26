@@ -73,6 +73,13 @@ pub fn search_value(needle: &[u8], from: i32) -> Result<JsValue, JsValue> {
 }
 
 #[wasm_bindgen]
+pub fn get_json() -> String {
+    let analysis_result = ANALYSIS_RESULT.lock().unwrap();
+
+    analysis_result.as_ref().unwrap().json.clone()
+}
+
+#[wasm_bindgen]
 pub fn decompress_and_parse_pickle_stream(stream: &[u8]) -> Result<String, String> {
     let decompressed = miniz_oxide::inflate::decompress_to_vec_zlib(stream).map_err(|e| e.to_string())?;
     parse_pickle_stream(&decompressed)
@@ -118,7 +125,10 @@ pub struct PacketAnalysisResult {
     pub version: String,
     pub time: String,
     pub packets: Vec<Packet>,
-    pub players: HashMap<i32, String>
+    pub players: HashMap<i32, String>,
+
+    #[serde(skip)]
+    pub json: String,
 }
 
 pub fn from_replay_parser(replay_parser: ReplayParser) -> PacketAnalysisResult {
@@ -136,12 +146,7 @@ pub fn from_replay_parser(replay_parser: ReplayParser) -> PacketAnalysisResult {
         .as_str()
         .unwrap()
         .to_string();
-    let version = json
-        .pointer("/clientVersionFromExe")
-        .unwrap()
-        .as_str()
-        .unwrap()
-        .to_string();
+
     let time = json
         .pointer("/dateTime")
         .unwrap()
@@ -192,7 +197,8 @@ pub fn from_replay_parser(replay_parser: ReplayParser) -> PacketAnalysisResult {
         version: format!("{:?}", replay_parser.get_version().unwrap_or([0,0,0,0])),
         time,
         packets,
-        players: get_player_list(json)
+        players: get_player_list(json),
+        json: serde_json::to_string_pretty(replay_parser.get_json()).unwrap_or_else(|_|"".to_owned()),
     }
 }
 
